@@ -93,7 +93,58 @@ body {
 }
   </style>
 </head>
-<body>
+<body><script>
+    // Variables
+    let characterName = "";
+
+    // Initialize game
+    function initializeGame() {
+        document.getElementById("special-inputs").style.display = "block";
+    }
+
+    // Submit character name
+    function submitCharacterName() {
+        characterName = document.getElementById("character-name-input").value;
+        alert("Welcome, " + characterName + "!");
+        document.getElementById("special-inputs").style.display = "none";
+    }
+
+    // Game Actions
+    function move(direction) {
+        alert("You move " + direction);
+    }
+
+    function attack() {
+        alert("You attack the enemy!");
+    }
+
+    function useItem() {
+        alert("You use an item.");
+    }
+
+    function viewInventory() {
+        alert("You view your inventory.");
+    }
+
+    function viewStats() {
+        alert("You view your stats.");
+    }
+
+    // Add Event Listeners
+    document.getElementById("submit-character-name").addEventListener("click", submitCharacterName);
+    document.getElementById("move-north-button").addEventListener("click", function() { move("north"); });
+    document.getElementById("move-south-button").addEventListener("click", function() { move("south"); });
+    document.getElementById("move-east-button").addEventListener("click", function() { move("east"); });
+    document.getElementById("move-west-button").addEventListener("click", function() { move("west"); });
+    document.getElementById("attack-button").addEventListener("click", attack);
+    document.getElementById("use-item-button").addEventListener("click", useItem);
+    document.getElementById("view-inventory-button").addEventListener("click", viewInventory);
+    document.getElementById("view-stats-button").addEventListener("click", viewStats);
+
+    // Start game initialization
+    initializeGame();
+</script>
+
 <!-- Game Action Buttons -->
 <button id="move-north-button">Move North</button>
 <button id="move-south-button">Move South</button>
@@ -635,5 +686,6 @@ const generateLoot = (monster, playerLevel) => {
   return null;
 };
   </script>
+
 </body>
 </html>
