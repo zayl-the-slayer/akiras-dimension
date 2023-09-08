@@ -93,75 +93,28 @@ body {
 }
   </style>
 </head>
-<body><script>
-    // Variables
-    let characterName = "";
-
-    // Initialize game
-    function initializeGame() {
-        document.getElementById("special-inputs").style.display = "block";
-    }
-
-    // Submit character name
-    function submitCharacterName() {
-        characterName = document.getElementById("character-name-input").value;
-        alert("Welcome, " + characterName + "!");
-        document.getElementById("special-inputs").style.display = "none";
-    }
-
-    // Game Actions
-    function move(direction) {
-        alert("You move " + direction);
-    }
-
-    function attack() {
-        alert("You attack the enemy!");
-    }
-
-    function useItem() {
-        alert("You use an item.");
-    }
-
-    function viewInventory() {
-        alert("You view your inventory.");
-    }
-
-    function viewStats() {
-        alert("You view your stats.");
-    }
-
-    // Add Event Listeners
-    document.getElementById("submit-character-name").addEventListener("click", submitCharacterName);
-    document.getElementById("move-north-button").addEventListener("click", function() { move("north"); });
-    document.getElementById("move-south-button").addEventListener("click", function() { move("south"); });
-    document.getElementById("move-east-button").addEventListener("click", function() { move("east"); });
-    document.getElementById("move-west-button").addEventListener("click", function() { move("west"); });
-    document.getElementById("attack-button").addEventListener("click", attack);
-    document.getElementById("use-item-button").addEventListener("click", useItem);
-    document.getElementById("view-inventory-button").addEventListener("click", viewInventory);
-    document.getElementById("view-stats-button").addEventListener("click", viewStats);
-
-    // Start game initialization
-    initializeGame();
-</script>
-
+<body>
 <!-- Game Action Buttons -->
-<button id="move-north-button">Move North</button>
-<button id="move-south-button">Move South</button>
-<button id="move-east-button">Move East</button>
-<button id="move-west-button">Move West</button>
-<button id="attack-button">Attack</button>
-<button id="use-item-button">Use Item</button>
-<button id="view-inventory-button">View Inventory</button>
-<button id="view-stats-button">View Stats</button>
+<div id="game-actions" style="display: none;">
+<button id="move-north-button" onclick="move('north')">Move North</button>
+<button id="move-south-button" onclick="move('south')">Move South</button>
+<button id="move-east-button" onclick="move('east')">Move East</button>
+<button id="move-west-button" onclick="move('west')">Move West</button>
+<button id="attack-button" onclick="attack()">Attack</button>
+<button id="use-item-button" onclick="useItem()">Use Item</button>
+<button id="view-inventory-button" onclick="viewInventory()">View Inventory</button>
+<button id="view-stats-button" onclick="viewStats()">View Stats</button>
+</div>
 <!-- Special Input Fields -->
-<div id="special-inputs" style="display: none;">
+<div id="special-inputs">
 <input id="character-name-input" placeholder="Enter Character Name" type="text"/>
-<button id="submit-character-name">Submit Name</button>
+<button id="submit-character-name" onclick="submitCharacterName()">Submit Name</button>
 </div>
 
-
-
+<input id="command-input" placeholder="Enter command" type="text"/>
+<button id="submit-button" type="submit">
+   Submit
+  </button>
 <p id="help-guide">
    Help Guide
   </p>
@@ -687,5 +640,56 @@ const generateLoot = (monster, playerLevel) => {
 };
   </script>
 
+<script>
+    // Variables
+    let characterName = "";
+
+    // Initialize game
+    function initializeGame() {
+        document.getElementById("special-inputs").style.display = "block";
+    }
+
+    // Submit character name
+    function submitCharacterName() {
+        characterName = document.getElementById("character-name-input").value;
+        alert("Welcome, " + characterName + "!");
+        document.getElementById("special-inputs").style.display = "none";
+    }
+
+    // Game Actions
+    function move(direction) {
+        alert("You move " + direction);
+    }
+
+    function attack() {
+        alert("You attack the enemy!");
+    }
+
+    function useItem() {
+        alert("You use an item.");
+    }
+
+    function viewInventory() {
+        alert("You view your inventory.");
+    }
+
+    function viewStats() {
+        alert("You view your stats.");
+    }
+
+    // Add Event Listeners
+    document.getElementById("submit-character-name").addEventListener("click", submitCharacterName);
+    document.getElementById("move-north-button").addEventListener("click", function() { move("north"); });
+    document.getElementById("move-south-button").addEventListener("click", function() { move("south"); });
+    document.getElementById("move-east-button").addEventListener("click", function() { move("east"); });
+    document.getElementById("move-west-button").addEventListener("click", function() { move("west"); });
+    document.getElementById("attack-button").addEventListener("click", attack);
+    document.getElementById("use-item-button").addEventListener("click", useItem);
+    document.getElementById("view-inventory-button").addEventListener("click", viewInventory);
+    document.getElementById("view-stats-button").addEventListener("click", viewStats);
+
+    // Start game initialization
+    initializeGame();
+</script>
 </body>
 </html>
