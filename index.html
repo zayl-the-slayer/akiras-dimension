@@ -1,0 +1,639 @@
+<!DOCTYPE html>
+
+<html lang="en">
+<head>
+<meta charset="utf-8"/>
+<title>
+   Text-Based RPG
+  </title>
+<style>
+   /* General Styles */
+body {
+    font-family: Arial, sans-serif;
+}
+
+/* Input Box */
+#command-input {
+    width: 100%;
+    padding: 12px;
+}
+
+/* Submit Button */
+#submit-button {
+    background-color: #4CAF50;
+    color: white;
+    padding: 14px 20px;
+    margin: 8px 0;
+    border: none;
+    cursor: pointer;
+    width: 100%;
+}
+  </style>
+<style>
+   /* Existing CSS content */
+#game-container {
+  width: 800px;
+  margin: auto;
+}
+
+/* New UI features */
+#status-bar {
+  display: flex;
+  justify-content: space-between;
+}
+
+#inventory-info, #quest-journal, #dialogue-box {
+  margin-top: 10px;
+}
+
+#command-input {
+  width: 100%;
+}
+
+#help-guide {
+  font-size: 12px;
+  color: gray;
+}
+
+/* Styles for remaining new UI features */
+#quest-journal, #time-indicator, #reputation-indicator {
+  margin: 5px;
+  font-size: 14px;
+}
+
+#help-guide {
+  font-size: 12px;
+  color: gray;
+  margin-top: 10px;
+}
+
+/* Responsive Layout */
+@media (max-width: 768px) {
+  #game-container {
+    flex-direction: column;
+  }
+  #game-output, #game-input {
+    width: 100%;
+  }
+}
+
+/* Responsive Typography */
+@media (max-width: 768px) {
+  body {
+    font-size: 16px;
+  }
+}
+
+/* UI Element Optimization */
+@media (max-width: 768px) {
+  button, input[type="text"] {
+    font-size: 16px;
+    padding: 10px;
+  }
+}
+  </style>
+</head>
+<body>
+<!-- Game Action Buttons -->
+<button id="move-north-button">Move North</button>
+<button id="move-south-button">Move South</button>
+<button id="move-east-button">Move East</button>
+<button id="move-west-button">Move West</button>
+<button id="attack-button">Attack</button>
+<button id="use-item-button">Use Item</button>
+<button id="view-inventory-button">View Inventory</button>
+<button id="view-stats-button">View Stats</button>
+<!-- Special Input Fields -->
+<div id="special-inputs" style="display: none;">
+<input id="character-name-input" placeholder="Enter Character Name" type="text"/>
+<button id="submit-character-name">Submit Name</button>
+</div>
+
+
+
+<p id="help-guide">
+   Help Guide
+  </p>
+<div id="text-display-area" style="border: 1px solid #ccc; padding: 20px; margin-top: 20px;">
+<p id="game-output">
+    Welcome to the game! Enter a command to begin.
+   </p>
+</div>
+<script>
+   // Function to update the text display area
+function updateDisplayArea(text) {
+    document.getElementById('game-output').textContent = text;
+}
+
+// Update the handleCommand function to use the updateDisplayArea function
+function handleCommand(command) {
+    // Debug statement
+    console.log('handleCommand function called.');
+    
+    // Placeholder functionality to display the received command in the text display area
+    updateDisplayArea('You entered the command: ' + command);
+}
+
+// Debug statement
+console.log('JavaScript file loaded.');
+
+// Add event listener for the submit button
+document.getElementById('submit-button').addEventListener('click', function() {
+    // Debug statement
+    console.log('Submit button clicked.');
+    
+    const commandInput = document.getElementById('command-input').value;
+    handleCommand(commandInput);
+});
+  </script>
+<script>
+   // Initialize game variables
+let player = {
+  name: "Adventurer",
+  level: 1,
+  experience: 0,
+  health: 100,
+  attack: 10,
+  defense: 5,
+  inventory: [],
+  reputation: {
+    Villagers: 0,
+    Bandits: 0
+  },
+  currentQuest: null
+};
+// ... (Rest of the code)
+
+// Function to populate command autocomplete suggestions
+const populateCommandSuggestions = () => {
+  const dataList = document.getElementById('command-suggestions');
+  const commands = ["talk to merchant", "talk to healer", "talk to questGiver", "go north", "go south"];
+  commands.forEach((command) => {
+    const option = document.createElement('option');
+    option.value = command;
+    dataList.appendChild(option);
+  });
+};
+
+// Function to update inventory display
+const updateInventoryDisplay = () => {
+  const inventoryInfo = document.getElementById('inventory-info');
+  inventoryInfo.innerHTML = \`Inventory: \${player.inventory.join(", ")}\`;
+};
+
+// Function to show dialogue box
+const showDialogueBox = (npc) => {
+  const dialogueBox = document.getElementById('dialogue-box');
+  const dialogue = npcs[npc].dialogue.greeting;
+  const options = npcs[npc].dialogue.options.join(", ");
+  dialogueBox.innerHTML = \`NPC: \${dialogue}. Options: \${options}\`;
+  dialogueBox.style.display = 'block';
+};
+
+// Initialize UI features
+window.addEventListener('load', () => {
+  populateCommandSuggestions();
+  updateInventoryDisplay();
+});
+
+// Update the existing interactWithNPC function to use the new dialogue box
+const interactWithNPC = (npc) => {
+  if (gameTime.isDaytime || npcs[npc].schedule !== "Daytime") {
+    showDialogueBox(npc);
+  } else {
+    return "The NPC is not available right now.";
+  }
+};
+
+// Skill System
+player.skills = {
+  combat: 1,
+  crafting: 1,
+  diplomacy: 1
+};
+
+// Crafting Mechanism
+const craftingRecipes = {
+  'Health Potion': ['Herb', 'Water'],
+  'Sword': ['Metal', 'Wood']
+};
+
+const craftItem = (item) => {
+  const requiredItems = craftingRecipes[item];
+  if (requiredItems.every(i => player.inventory.includes(i))) {
+    requiredItems.forEach(i => {
+      const index = player.inventory.indexOf(i);
+      player.inventory.splice(index, 1);
+    });
+    player.inventory.push(item);
+    return \`Crafted \${item}\`;
+  }
+  return 'Missing required items for crafting';
+};
+
+// Random Events
+const randomEvents = [
+  { description: 'You found a hidden treasure.', rewards: ['Gold', 'Jewels'] },
+  { description: 'You were ambushed by bandits.', penalties: ['Lose health'] }
+];
+
+const triggerRandomEvent = () => {
+  const event = randomEvents[Math.floor(Math.random() * randomEvents.length)];
+  if (event.rewards) {
+    player.inventory.push(...event.rewards);
+  }
+  if (event.penalties) {
+    // Apply penalties (e.g., reduce health)
+  }
+  return event.description;
+};
+
+// Mini-Map
+const drawMiniMap = () => {
+  const miniMap = document.getElementById('mini-map');
+  // Code to draw the mini-map based on player's location
+};
+
+// Animations and Transitions
+const showAnimation = (type) => {
+  const animationElement = document.getElementById('animation');
+  animationElement.classList.add(type);
+  setTimeout(() => animationElement.classList.remove(type), 1000);
+};
+
+// Sound Effects
+const playSound = (type) => {
+  const soundElement = document.getElementById(type + 'Sound');
+  soundElement.play();
+};
+
+// Save/Load System
+const saveGame = () => {
+  localStorage.setItem('gameState', JSON.stringify(player));
+};
+
+const loadGame = () => {
+  const savedState = localStorage.getItem('gameState');
+  if (savedState) {
+    Object.assign(player, JSON.parse(savedState));
+  }
+};
+
+// Keyboard Shortcuts
+document.addEventListener('keydown', (event) => {
+  if (event.code === 'KeyS') {
+    saveGame();
+  }
+  if (event.code === 'KeyL') {
+    loadGame();
+  }
+  // Add more shortcuts as needed
+});
+
+// Performance Optimization
+// Here you can refactor any loops, algorithms, or redundant code for better performance
+
+// Error Handling and Input Validation
+const validateInput = (input) => {
+  if (typeof input !== 'string' || input.length === 0) {
+    return false;
+  }
+  return true;
+};
+
+// Cross-browser Compatibility
+// Make sure to test the game on various browsers and apply necessary prefixes or fallbacks
+
+// Difficulty Levels
+const difficultyLevels = {
+  'Easy': { enemyStrength: 0.5, resourceAvailability: 1.5 },
+  'Normal': { enemyStrength: 1, resourceAvailability: 1 },
+  'Hard': { enemyStrength: 1.5, resourceAvailability: 0.5 }
+};
+
+// Multi-path Quests
+const multiPathQuests = {
+  'Find the Artifact': {
+    paths: {
+      'Steal': { outcome: 'You stole the artifact.', rewards: ['Artifact'] },
+      'Trade': { outcome: 'You traded for the artifact.', rewards: ['Artifact'] }
+    }
+  }
+};
+
+// Achievements
+player.achievements = [];
+const unlockAchievement = (name) => {
+  if (!player.achievements.includes(name)) {
+    player.achievements.push(name);
+    return \`Achievement unlocked: \${name}\`;
+  }
+  return '';
+};
+
+// Accessibility Options
+const setAccessibility = (size, contrast) => {
+  document.documentElement.style.setProperty('--text-size', size);
+  document.documentElement.style.setProperty('--contrast-level', contrast);
+};
+
+// User Feedback
+const showFeedback = (message, type) => {
+  const feedbackElement = document.getElementById('user-feedback');
+  feedbackElement.innerHTML = message;
+  feedbackElement.classList.add(type);
+  setTimeout(() => feedbackElement.classList.remove(type), 3000);
+};
+
+// Tooltips
+const showTooltip = (elementId, message) => {
+  const tooltipElement = document.getElementById(elementId + '-tooltip');
+  tooltipElement.innerHTML = message;
+  tooltipElement.style.display = 'block';
+};
+
+// Enhanced Save/Load System
+const saveGameEnhanced = () => {
+  const gameState = {
+    player,
+    completedQuests,
+    learnedSkills
+  };
+  localStorage.setItem('enhancedGameState', JSON.stringify(gameState));
+};
+
+const loadGameEnhanced = () => {
+  const savedState = localStorage.getItem('enhancedGameState');
+  if (savedState) {
+    const { player: savedPlayer, completedQuests, learnedSkills } = JSON.parse(savedState);
+    Object.assign(player, savedPlayer);
+    // Load other game states like completedQuests and learnedSkills
+  }
+};
+
+// Code Optimization
+// Further optimize any redundant code or algorithms for better performance
+
+// Browser Testing Reminder
+// TODO: Perform comprehensive cross-browser and device testing to ensure compatibility
+
+// Library of Possible Monster Encounters
+const monsterEncounters = [
+  { name: 'Goblin', hp: 20, attack: 5, loot: ['Gold', 'Potion'] },
+  { name: 'Ogre', hp: 50, attack: 15, loot: ['Gold', 'Weapon'] },
+  // ... Add more monsters
+];
+
+// Library of Possible NPC Encounters
+const npcEncounters = [
+  { name: 'Villager', quest: 'Find the lost sheep', rewards: ['Gold', 'Potion'] },
+  { name: 'Merchant', quest: 'Retrieve stolen goods', rewards: ['Gold', 'Weapon'] },
+  // ... Add more NPCs
+];
+
+// Function to Generate Random Encounter
+const generateRandomEncounter = () => {
+  const encounterType = Math.random() < 0.5 ? 'monster' : 'npc';
+  let encounter = null;
+  if (encounterType === 'monster') {
+    encounter = monsterEncounters[Math.floor(Math.random() * monsterEncounters.length)];
+  } else {
+    encounter = npcEncounters[Math.floor(Math.random() * npcEncounters.length)];
+  }
+  return { type: encounterType, encounter };
+};
+
+// Player and Enemy Power Scalability
+const scaleEnemyPower = (playerLevel) => {
+  return monsterEncounters.map((monster) => {
+    return {
+      ...monster,
+      hp: Math.floor(monster.hp * (1 + (playerLevel - 1) * 0.1)),
+      attack: Math.floor(monster.attack * (1 + (playerLevel - 1) * 0.1))
+    };
+  });
+};
+
+// Skill Library
+const skillLibrary = [
+  { name: 'Fireball', damage: 20, mpCost: 10 },
+  { name: 'Heal', healing: 20, mpCost: 10 },
+  // ... Add more skills
+];
+
+// Function to Learn Skill
+const learnSkill = (skillName) => {
+  const skill = skillLibrary.find(s => s.name === skillName);
+  if (skill) {
+    player.skills.push(skill);
+    return \`You have learned \${skillName}.\`;
+  }
+  return 'Skill not found.';
+};
+
+// Classes and Class Promotions
+const baseClasses = ['Warrior', 'Mage', 'Rogue'];
+const promotions = {
+  'Warrior': ['Knight', 'Berserker'],
+  'Mage': ['Sorcerer', 'Necromancer'],
+  'Rogue': ['Assassin', 'Shadow']
+};
+
+// Races
+const races = ['Human', 'Elf', 'Hobbit', 'Dwarf', 'Orc'];
+const raceAttributes = {
+  'Human': { hp: 100, mp: 50 },
+  'Elf': { hp: 80, mp: 70 },
+  // ... Add more races with attributes
+};
+
+// Unique Books for Classes and Races
+const uniqueBooks = {
+  'Warrior': { title: 'Art of War', effect: { attack: 5 } },
+  'Elf': { title: 'Elven Wisdom', effect: { mp: 10 } },
+  // ... Add more unique books
+};
+
+// Function to Promote Class
+const promoteClass = (currentClass) => {
+  const options = promotions[currentClass];
+  if (options) {
+    // Logic to promote to one of the available options
+  }
+  return 'Invalid class for promotion.';
+};
+
+// Function to Apply Race Attributes
+const applyRaceAttributes = (race) => {
+  const attributes = raceAttributes[race];
+  if (attributes) {
+    Object.assign(player, attributes);
+  }
+};
+
+// Function to Obtain Unique Book
+const obtainUniqueBook = (classNameOrRace) => {
+  const book = uniqueBooks[classNameOrRace];
+  if (book) {
+    player.inventory.push(book);
+    return \`You obtained the \${book.title}.\`;
+  }
+  return 'No unique book available.';
+};
+
+// Library of 30 Differentiated and Scalable Enemy Encounters
+const enemyEncounters = [
+  { name: 'Goblin', baseHp: 20, baseAttack: 5, loot: ['Gold'], scalingFactor: 0.1 },
+  { name: 'Ogre', baseHp: 50, baseAttack: 15, loot: ['Weapon'], scalingFactor: 0.2 },
+  { name: 'Dragon', baseHp: 100, baseAttack: 25, loot: ['Gold', 'Gem'], scalingFactor: 0.3 },
+  { name: 'Ghost', baseHp: 30, baseAttack: 10, loot: ['Elixir'], scalingFactor: 0.1 },
+  // ... Add 26 more enemies
+];
+
+// Function to Generate and Scale Enemy based on Player Level
+const generateAndScaleEnemy = (playerLevel) => {
+  const randomEnemy = enemyEncounters[Math.floor(Math.random() * enemyEncounters.length)];
+  return {
+    name: randomEnemy.name,
+    hp: Math.floor(randomEnemy.baseHp * (1 + (playerLevel - 1) * randomEnemy.scalingFactor)),
+    attack: Math.floor(randomEnemy.baseAttack * (1 + (playerLevel - 1) * randomEnemy.scalingFactor)),
+    loot: randomEnemy.loot
+  };
+};
+
+// Library of 30 Differentiated and Scalable Skills
+const skills = [
+  { name: 'Fireball', baseDamage: 20, mpCost: 10, scalingFactor: 0.2 },
+  { name: 'Heal', baseHealing: 20, mpCost: 10, scalingFactor: 0.1 },
+  { name: 'Thunderstrike', baseDamage: 30, mpCost: 15, scalingFactor: 0.25 },
+  { name: 'Shield', baseDefense: 10, mpCost: 5, scalingFactor: 0.1 },
+  // ... Add 26 more skills
+];
+
+// Function to Generate and Scale Skill based on Player Level
+const generateAndScaleSkill = (playerLevel) => {
+  const randomSkill = skills[Math.floor(Math.random() * skills.length)];
+  return {
+    name: randomSkill.name,
+    effect: Math.floor(randomSkill.baseEffect * (1 + (playerLevel - 1) * randomSkill.scalingFactor)),
+    mpCost: randomSkill.mpCost
+  };
+};
+
+// Additional 30 Differentiated and Scalable Enemy Encounters
+const additionalEnemyEncounters = [
+  { name: 'Vampire', baseHp: 40, baseAttack: 12, loot: ['Blood Vial'], scalingFactor: 0.15 },
+  { name: 'Werewolf', baseHp: 60, baseAttack: 18, loot: ['Fur'], scalingFactor: 0.2 },
+  { name: 'Mummy', baseHp: 35, baseAttack: 9, loot: ['Bandages'], scalingFactor: 0.1 },
+  { name: 'Zombie', baseHp: 30, baseAttack: 8, loot: ['Rotten Flesh'], scalingFactor: 0.1 },
+  // ... Add 26 more additional enemies
+];
+
+// Merging the original and additional enemy encounters
+const allEnemyEncounters = enemyEncounters.concat(additionalEnemyEncounters);
+
+// Differentiated Library of Spells
+const spells = [
+  { name: 'Arcane Blast', baseDamage: 25, mpCost: 12, scalingFactor: 0.2, classAppropriate: ['Mage'] },
+  // ... Add more spells
+];
+
+// Differentiated Library of Skills
+const skills = [
+  { name: 'Sword Strike', baseDamage: 15, mpCost: 5, scalingFactor: 0.1, classAppropriate: ['Warrior'] },
+  // ... Add more skills
+];
+
+// Character Stats for Progression
+let playerStats = {
+  Strength: 10,
+  Agility: 10,
+  Intelligence: 10,
+  // ... Add more stats
+};
+
+// Function to Invest in Stats
+const investInStat = (statName, points) => {
+  if (playerStats[statName] !== undefined) {
+    playerStats[statName] += points;
+    return \`Invested \${points} points in \${statName}.\`;
+  }
+  return 'Invalid stat name.';
+};
+
+// Function to Generate and Scale Spell or Skill based on Player Level and Class
+const generateAndScaleSpellOrSkill = (playerLevel, playerClass) => {
+  let availableOptions = spells.filter(spell => spell.classAppropriate.includes(playerClass));
+  availableOptions = availableOptions.concat(skills.filter(skill => skill.classAppropriate.includes(playerClass)));
+  const randomOption = availableOptions[Math.floor(Math.random() * availableOptions.length)];
+  return {
+    name: randomOption.name,
+    effect: Math.floor(randomOption.baseEffect * (1 + (playerLevel - 1) * randomOption.scalingFactor)),
+    mpCost: randomOption.mpCost
+  };
+};
+
+// Skill & Spell Trainer NPC
+const trainerNPC = { name: 'Master Trainer', type: 'Trainer' };
+
+// Player's Equipped Skills and Spells (up to 7)
+let equippedSkillsAndSpells = [];
+
+// Function to Visit Trainer and Select Skills and Spells
+const visitTrainer = (playerClass, playerRace) => {
+  const availableSkills = skills.filter(skill => skill.classAppropriate.includes(playerClass));
+  const availableSpells = spells.filter(spell => spell.classAppropriate.includes(playerClass));
+  
+  // Logic to allow player to select up to 7 skills and/or spells
+  // This would involve some kind of UI or prompt for the player
+  // For now, let's assume the player selects the first 7 available options
+  equippedSkillsAndSpells = availableSkills.slice(0, 3).concat(availableSpells.slice(0, 4));
+  
+  return \`You have visited the Master Trainer and equipped new skills and spells.\`;
+};
+
+// Function to Swap Skills and Spells at the Trainer
+const swapSkillOrSpell = (oldSkillOrSpell, newSkillOrSpell) => {
+  const index = equippedSkillsAndSpells.findIndex(item => item.name === oldSkillOrSpell);
+  if (index !== -1) {
+    equippedSkillsAndSpells[index] = newSkillOrSpell;
+    return \`Successfully swapped \${oldSkillOrSpell} with \${newSkillOrSpell}.\`;
+  }
+  return 'Skill or spell not found in your equipped list.';
+};
+
+// Equipment Slots for Player
+let playerEquipment = {
+  Weapon: null,
+  Armor: null,
+  Accessory: null
+};
+
+// Loot Tables for Monsters
+const monsterLootTables = {
+  'Goblin': [{ item: 'Rusty Sword', type: 'Weapon', levelRequirement: 1 }],
+  'Ogre': [{ item: 'Iron Armor', type: 'Armor', levelRequirement: 5 }],
+  // ... Add loot tables for all 60 monsters
+};
+
+// Function to Equip Item
+const equipItem = (item, type) => {
+  if (playerEquipment[type] === null) {
+    playerEquipment[type] = item;
+    return \`Equipped \${item} in \${type} slot.\`;
+  }
+  return 'Slot is already occupied.';
+};
+
+// Function to Generate Loot based on Monster and Player Level
+const generateLoot = (monster, playerLevel) => {
+  const lootOptions = monsterLootTables[monster.name].filter(loot => loot.levelRequirement <= playerLevel);
+  if (lootOptions.length > 0) {
+    const randomLoot = lootOptions[Math.floor(Math.random() * lootOptions.length)];
+    return randomLoot;
+  }
+  return null;
+};
+  </script>
+</body>
+</html>
